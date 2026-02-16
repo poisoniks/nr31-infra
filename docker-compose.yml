@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: nr31db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - nr31-network
+
+  backend:
+    image: ghcr.io/poisoniks/nr31-backend:latest
+    restart: unless-stopped
+    environment:
+      - SPRING_DATASOURCE_URL=${POSTGRESS_URL}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRESS_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRESS_PASS}
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+    depends_on:
+      - db
+    networks:
+      - nr31-network
+
+  frontend:
+    image: ghcr.io/poisoniks/nr31-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - nr31-network
+
+networks:
+  nr31-network:
+    driver: bridge
+
+volumes:
+  pgdata:
