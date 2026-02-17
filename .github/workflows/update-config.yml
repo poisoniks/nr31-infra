@@ -15,5 +15,34 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
+            echo "=== DIAGNOSTICS START ==="
+            
+            echo "1. Where we are"
+            id
+            hostname
             pwd
-            echo "PATH is: $PATH"
+            
+            echo "2. Checking for root dir"
+            if [ -d "/opt/nr31" ]; then
+                echo "[OK] Directory /opt/nr31 exists."
+                ls -la /opt/nr31
+            else
+                echo "[ERROR] Directory /opt/nr31 DOES NOT EXIST."
+                echo "Content of /opt:"
+                ls -la /opt
+            fi
+            
+            echo "3. Looking for docker binary"
+            if [ -f "/usr/bin/docker" ]; then
+                echo "[OK] Found at /usr/bin/docker"
+            elif [ -f "/snap/bin/docker" ]; then
+                echo "[OK] Found at /snap/bin/docker"
+            else
+                echo "[ERROR] Docker binary not found in standard locations."
+            fi
+            
+            echo "4. What packages are installed"
+            dpkg -l | grep docker || echo "Docker not installed via apt"
+            snap list docker || echo "Docker not installed via snap"
+            
+            echo "=== DIAGNOSTICS END ==="
