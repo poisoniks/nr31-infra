@@ -15,16 +15,21 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
+            source /etc/profile
+            source ~/.bashrc || true
+            
             set -e
             
-            echo "Current user: $(whoami)"
+            echo "Environment loaded. Current user: $(whoami)"
             
-            export PATH=$PATH:/usr/bin:/usr/local/bin:/snap/bin
+            if ! command -v docker &> /dev/null; then
+                echo "Docker could not be found even after sourcing profile!"
+                echo "PATH is: $PATH"
+                exit 1
+            fi
             
-            which docker
-            docker compose version
+            echo "Docker found at: $(which docker)"
             
-            echo "Navigating to /opt/nr31..."
             cd /opt/nr31
             
             git fetch origin
