@@ -8,6 +8,60 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Generate .env file from template
+        shell: bash
+        env:
+          SECRETS_CONTEXT: ${{ toJSON(secrets) }}
+          VARS_CONTEXT: ${{ toJSON(vars) }}
+        run: |
+          echo "Generating .env file with priority: Secrets > Variables > Empty..."
+          
+          > .env
+
+          while IFS= read -r line || [ -n "$line" ]; do
+            # Skip comments and empty rows
+            if [[ "$line" =~ ^#.* ]] || [ -z "$line" ]; then continue; fi
+
+            key=${line%%=*}
+
+            # Look in secrets
+            val=$(echo "$SECRETS_CONTEXT" | jq -r --arg k "$key" '.[$k]')
+
+            # Look in variables
+            if [ "$val" == "null" ] || [ -z "$val" ]; then
+                val=$(echo "$VARS_CONTEXT" | jq -r --arg k "$key" '.[$k]')
+            fi
+
+            # Put empty string is nothing found
+            if [ "$val" == "null" ]; then
+                val=""
+            fi
+
+            echo "$key=$val" >> .env
+          
+            if [ -n "$val" ]; then
+               echo "Key '$key': Found value."
+            else
+               echo "Key '$key': Value not found (empty)."
+            fi
+
+          done < .env.template
+          
+          echo "File .env generated successfully."
+
+      - name: Copy .env to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          source: ".env"
+          target: "/opt/nr31"
+          overwrite: true
+
       - name: Update VPS Configuration via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -24,11 +78,9 @@ jobs:
             git reset --hard origin/main
 
             docker compose pull
-            
             docker compose up -d --remove-orphans --force-recreate
             
             docker image prune -f
-
             docker logout ghcr.io
         env:
           GHCR_PAT: ${{ secrets.GHCR_PAT }}

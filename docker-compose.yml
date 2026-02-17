@@ -5,9 +5,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: nr31db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+      POSTGRES_DB: ${POSTGRES_SCHEMA}
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -30,9 +30,9 @@ services:
     image: ghcr.io/poisoniks/nr31-backend:latest
     restart: unless-stopped
     environment:
-      - SPRING_DATASOURCE_URL=${POSTGRESS_URL}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRESS_USER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRESS_PASS}
+      - SPRING_DATASOURCE_URL=${POSTGRES_URL}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASS}
       - JAVA_OPTS=-Xms512m -Xmx1024m
     depends_on:
       - db
