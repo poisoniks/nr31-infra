@@ -15,26 +15,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            source /etc/profile
-            source ~/.bashrc || true
-            
-            set -e
-            
-            echo "Environment loaded. Current user: $(whoami)"
-            
-            if ! command -v docker &> /dev/null; then
-                echo "Docker could not be found even after sourcing profile!"
-                echo "PATH is: $PATH"
-                exit 1
-            fi
-            
-            echo "Docker found at: $(which docker)"
-            
-            cd /opt/nr31
-            
-            git fetch origin
-            git reset --hard origin/main
-            
-            docker compose up -d --remove-orphans --force-recreate
-            
-            docker image prune -f
+            pwd
+            echo "PATH is: $PATH"
