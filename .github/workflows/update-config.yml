@@ -6,7 +6,6 @@ on:
 jobs:
   update-server-configs:
     runs-on: ubuntu-latest
-    environment: prod
     steps:
       - name: Update VPS Configuration via SSH
         uses: appleboy/ssh-action@v1.0.3
