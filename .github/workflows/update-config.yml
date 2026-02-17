@@ -28,6 +28,8 @@ jobs:
             docker compose up -d --remove-orphans --force-recreate
             
             docker image prune -f
+
+            docker logout ghcr.io
         env:
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
           GHCR_USER: ${{ secrets.GHCR_USER }}
