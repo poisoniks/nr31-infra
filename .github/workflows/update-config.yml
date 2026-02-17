@@ -15,18 +15,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            set -e
-            
-            echo "Current user: $(whoami)"
-            
-            export PATH=$PATH:/usr/bin:/usr/local/bin:/snap/bin
-            
-            which docker
-            docker compose version
-            
-            echo "Navigating to /opt/nr31..."
             cd /opt/nr31
-            
+
             git fetch origin
             git reset --hard origin/main
             
