@@ -1,4 +1,4 @@
-name: Update config
+name: Init admin user
 
 on:
   workflow_dispatch:
