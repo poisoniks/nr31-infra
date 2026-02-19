@@ -1,0 +1,57 @@
+name: Update config
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-server-configs:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Update VPS Configuration via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            docker run --rm \
+              --network nr31-network \
+              --env-file .env \
+              -v $(pwd):/opt/output \
+              postgres:15-alpine \
+              /bin/sh -c "
+                echo 'Starting Admin Setup...'
+
+                if [ -f /opt/output/admin_credentials.txt ]; then
+                  echo 'Credentials file already exists. Skipping setup.'
+                  exit 0
+                fi
+
+                ADMIN_PASS=\$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32)
+                
+                export PGPASSWORD=\$POSTGRES_PASS
+
+                psql -h \$POSTGRES_URL -U \$POSTGRES_USER -d \$DB_NAME -c \"
+                  CREATE EXTENSION IF NOT EXISTS pgcrypto;
+                  WITH new_user AS (
+                      INSERT INTO users (username, password_hash)
+                      SELECT 'superadmin', crypt('\$ADMIN_PASS', gen_salt('bf'))
+                      WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'superadmin')
+                      RETURNING id
+                  ),
+                  target_role AS (
+                      SELECT id FROM roles WHERE name = 'SUPER_ADMIN' LIMIT 1
+                  )
+                  INSERT INTO user_roles (user_id, role_id)
+                  SELECT new_user.id, target_role.id
+                  FROM new_user, target_role;
+                \"
+
+                # Output to the mounted VPS directory
+                echo 'Username: superadmin' > /opt/output/admin_credentials.txt
+                echo \"Password: \$ADMIN_PASS\" >> /opt/output/admin_credentials.txt
+                chmod 600 /opt/output/admin_credentials.txt
+                
+                echo 'Admin generated successfully.'
+              "
