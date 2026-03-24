@@ -32,13 +32,26 @@
   apt-get update
   apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
-  echo "=== 4. Firewall Configuration (UFW) ==="
+  echo "=== 4. Docker Logging Driver Configuration ==="
+  mkdir -p /etc/docker
+  cat <<EOF > /etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "3"
+  }
+}
+EOF
+  systemctl restart docker
+
+  echo "=== 5. Firewall Configuration (UFW) ==="
   ufw allow OpenSSH
   ufw allow 80/tcp
   ufw allow 443/tcp
   ufw --force enable
 
-  echo "=== 5. Creating working directory ==="
+  echo "=== 6. Creating working directory ==="
   mkdir -p /opt/nr31
   cd /opt/nr31
 
