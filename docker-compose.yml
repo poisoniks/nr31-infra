@@ -14,12 +14,15 @@ services:
       - nr31-network
 
   nginx:
-    image: nginx:alpine
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "80:80"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
+      - uploads_data:/var/lib/nr31/uploads:ro
     depends_on:
       - backend
       - frontend
@@ -37,6 +40,9 @@ services:
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
       - JAVA_OPTS=-Xms512m -Xmx1024m
+      - APP_STORAGE_PATH=/var/lib/nr31/uploads
+    volumes:
+      - uploads_data:/var/lib/nr31/uploads
     depends_on:
       - db
     networks:
@@ -54,3 +60,4 @@ networks:
 
 volumes:
   pgdata:
+  uploads_data:
