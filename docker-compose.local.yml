@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nr31-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nr31db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: nr31-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nr31-nginx-local
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      # Mount a specific local configuration folder
+      - ./nginx/local.conf.d:/etc/nginx/conf.d
+      # Mount a folder on Host OS to the Nginx internal path
+      - D:/Development/nr31-backend/uploads:/var/lib/nr31/uploads:ro
+    extra_hosts:
+      # Ensures host.docker.internal resolves correctly on Linux hosts
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - db
+      - mailpit
+
+volumes:
+  pgdata:
