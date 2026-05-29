@@ -32,6 +32,10 @@ services:
   backend:
     image: ghcr.io/poisoniks/nr31-backend:latest
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     environment:
       - SPRING_DATASOURCE_URL=${POSTGRES_URL}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
@@ -39,7 +43,6 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
-      - JAVA_OPTS=-Xms512m -Xmx1024m
       - APP_STORAGE_PATH=/var/lib/nr31/uploads
     volumes:
       - uploads_data:/var/lib/nr31/uploads
