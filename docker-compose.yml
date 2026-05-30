@@ -20,9 +20,11 @@ services:
     restart: always
     ports:
       - "80:80"
+    environment:
+      - APP_STORAGE_PATH=${APP_STORAGE_PATH}
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - uploads_data:/var/lib/nr31/uploads:ro
+      - ./nginx/conf.d/app.conf:/etc/nginx/templates/app.conf.template:ro
+      - uploads_data:${APP_STORAGE_PATH}/uploads:ro
     depends_on:
       - backend
       - frontend
@@ -55,7 +57,7 @@ services:
       - APP_MAIL_FROM=
       - EMAIL_RATE_LIMIT_SECONDS=${EMAIL_RATE_LIMIT_SECONDS}
     volumes:
-      - uploads_data:/var/lib/nr31/uploads
+      - uploads_data:${APP_STORAGE_PATH}/uploads
     depends_on:
       - db
     networks:
