@@ -42,9 +42,11 @@ services:
     restart: always
     ports:
       - "80:80"
+    environment:
+      - NGINX_MAX_BODY_SIZE=500M
     volumes:
-      # Mount a specific local configuration folder
-      - ./nginx/local.conf.d:/etc/nginx/conf.d
+      # Mount a specific local configuration file as template
+      - ./nginx/local.conf.d/default.conf:/etc/nginx/templates/default.conf.template:ro
       # Mount a folder on Host OS to the Nginx internal path
       - D:/Development/nr31-backend/uploads:/var/lib/nr31/uploads:ro
     extra_hosts:

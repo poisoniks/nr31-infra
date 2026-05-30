@@ -22,6 +22,7 @@ services:
       - "80:80"
     environment:
       - APP_STORAGE_PATH=${APP_STORAGE_PATH}
+      - NGINX_MAX_BODY_SIZE=${NGINX_MAX_BODY_SIZE}
     volumes:
       - ./nginx/conf.d/app.conf:/etc/nginx/templates/app.conf.template:ro
       - uploads_data:${APP_STORAGE_PATH}/uploads:ro
@@ -56,6 +57,7 @@ services:
       - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=false
       - APP_MAIL_FROM=
       - EMAIL_RATE_LIMIT_SECONDS=${EMAIL_RATE_LIMIT_SECONDS}
+      - SERVLET_MAX_FILE_SIZE=${BE_MAX_BODY_SIZE}
     volumes:
       - uploads_data:${APP_STORAGE_PATH}/uploads
     depends_on:
