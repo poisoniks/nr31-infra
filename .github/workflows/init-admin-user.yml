@@ -35,8 +35,9 @@ jobs:
                 ADMIN_PASS=\$(tr -dc A-Za-z0-9 </dev/urandom | head -c 32)
                 
                 export PGPASSWORD=\$POSTGRES_PASS
+                export PGHOST=\$(echo \$POSTGRES_URL | cut -d/ -f3 | cut -d: -f1)
 
-                psql \"\${POSTGRES_URL#jdbc:}\" -U \$POSTGRES_USER -d \$POSTGRES_SCHEMA -c \"
+                psql -h \$PGHOST -U \$POSTGRES_USER -d \$POSTGRES_SCHEMA -c \"
                   CREATE EXTENSION IF NOT EXISTS pgcrypto;
                   WITH new_user AS (
                       INSERT INTO users (username, password_hash, email, email_verified)
