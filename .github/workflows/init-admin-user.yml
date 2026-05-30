@@ -17,7 +17,7 @@ jobs:
           envs: POSTGRES_USER, POSTGRES_PASS, POSTGRES_SCHEMA, POSTGRES_URL
           script: |
             docker run --rm \
-              --network nr31-network \
+              --network nr31_nr31-network \
               -e POSTGRES_USER=$POSTGRES_USER \
               -e POSTGRES_PASS=$POSTGRES_PASS \
               -e POSTGRES_SCHEMA=$POSTGRES_SCHEMA \
