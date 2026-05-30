@@ -35,8 +35,8 @@ jobs:
                 psql -h \$POSTGRES_URL -U \$POSTGRES_USER -d \$DB_NAME -c \"
                   CREATE EXTENSION IF NOT EXISTS pgcrypto;
                   WITH new_user AS (
-                      INSERT INTO users (username, password_hash)
-                      SELECT 'superadmin', crypt('\$ADMIN_PASS', gen_salt('bf'))
+                      INSERT INTO users (username, password_hash, email, email_verified)
+                      SELECT 'superadmin', crypt('\$ADMIN_PASS', gen_salt('bf')), 'superadmin@nr31.org', true
                       WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'superadmin')
                       RETURNING id
                   ),
