@@ -21,11 +21,10 @@ services:
     ports:
       - "80:80"
     environment:
-      - APP_STORAGE_PATH=${APP_STORAGE_PATH}
       - NGINX_MAX_BODY_SIZE=${NGINX_MAX_BODY_SIZE}
     volumes:
       - ./nginx/conf.d/app.conf:/etc/nginx/templates/app.conf.template:ro
-      - uploads_data:${APP_STORAGE_PATH}/uploads:ro
+      - uploads_data:/app/uploads:ro
     depends_on:
       - backend
       - frontend
@@ -46,7 +45,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
-      - APP_STORAGE_PATH=${APP_STORAGE_PATH}
+      - APP_STORAGE_PATH=/app/uploads
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
       - APP_FRONTEND_URL=${APP_FRONTEND_URL}
       - SPRING_MAIL_HOST=
@@ -59,7 +58,7 @@ services:
       - EMAIL_RATE_LIMIT_SECONDS=${EMAIL_RATE_LIMIT_SECONDS}
       - SERVLET_MAX_FILE_SIZE=${BE_MAX_BODY_SIZE}
     volumes:
-      - uploads_data:${APP_STORAGE_PATH}/uploads
+      - uploads_data:/app/uploads
     depends_on:
       - db
     networks:
