@@ -14,10 +14,14 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
+          envs: POSTGRES_USER, POSTGRES_PASS, POSTGRES_SCHEMA, POSTGRES_URL
           script: |
             docker run --rm \
               --network nr31-network \
-              --env-file .env \
+              -e POSTGRES_USER=$POSTGRES_USER \
+              -e POSTGRES_PASS=$POSTGRES_PASS \
+              -e POSTGRES_SCHEMA=$POSTGRES_SCHEMA \
+              -e POSTGRES_URL=$POSTGRES_URL \
               -v $(pwd):/opt/output \
               postgres:15-alpine \
               /bin/sh -c "
@@ -32,7 +36,7 @@ jobs:
                 
                 export PGPASSWORD=\$POSTGRES_PASS
 
-                psql -h \$POSTGRES_URL -U \$POSTGRES_USER -d \$DB_NAME -c \"
+                psql -h \$POSTGRES_URL -U \$POSTGRES_USER -d \$POSTGRES_SCHEMA -c \"
                   CREATE EXTENSION IF NOT EXISTS pgcrypto;
                   WITH new_user AS (
                       INSERT INTO users (username, password_hash, email, email_verified)
@@ -55,3 +59,8 @@ jobs:
                 
                 echo 'Admin generated successfully.'
               "
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER || vars.POSTGRES_USER }}
+          POSTGRES_PASS: ${{ secrets.POSTGRES_PASS || vars.POSTGRES_PASS }}
+          POSTGRES_SCHEMA: ${{ secrets.POSTGRES_SCHEMA || vars.POSTGRES_SCHEMA }}
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL || vars.POSTGRES_URL }}
